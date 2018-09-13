@@ -38,7 +38,6 @@ def index():
     return render_template('index.html', users=users)
 
 
-#if methods == get use singleUser.html
 @app.route('/blog', methods=['POST', 'GET'])
 def blog():
     if "user" in request.args:
@@ -71,11 +70,13 @@ def new_blog_post():
         body_error = ''
 
         if len(title_entry) == 0:
-            title_error = "Your blog needs a title"
+            flash("Your blog needs a title")
+            return redirect("/newpost")
         if len(body_entry) == 0:
-            body_error = "Your blog needs a body"
+            flash("Your blog needs a body")
+            return redirect("/newpost")
         if title_error or body_error:
-            return render_template('newpost.html', title_error=title_error, body_errror=body_error, title=title_entry, body_name=body_entry)
+            return render_template('newpost.html')
         
         else:
             if len(title_entry) and len(body_entry) > 0:
@@ -97,10 +98,13 @@ def signup():
         verify = request.form['verify']
 
         if len(username) < 3 or len(username) > 20:
-            return "<h2>Invalid User Name </h2>"
+            flash ("Invalid User Name")
+            return redirect("/signup")
         if len(password) < 3 or len(password) > 20:
-            return "<h2>Invalid Password</h2>"
+            flash ("Invalid Password")
+            return redirect("/signup")
         if password != verify:
+            ##
             flash("Passwords do not match")
             return redirect("/signup")
         
@@ -125,12 +129,11 @@ def login():
         user = User.query.filter_by(username=username).first()
         if user and user.password == password:
             session['username']=username
-            flash("logged in", category='message')
+            flash("logged in")
             return redirect('/newpost')
         else:
-            return "<h1>Your username or password is incorrect<h1>"
-            # flash("Password incorrect or user doesn't exist error")
-            # How to do a flash message????
+            flash("Your username or password is incorrect")
+            return redirect('/login')
 
     return render_template('login.html')
 
